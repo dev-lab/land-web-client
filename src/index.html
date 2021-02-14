@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Copyright (c) 2021 Taras Greben <taras.greben@gmail.com> LAND.eTaras.com. All rights Reserved. -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="Keywords" content="LAND,LAN Detector,LAN,IP,IPv4,IP address,intranet,network,subnet,net,home network,Class C,/24,local network,detection,discovery,inventory">
+<meta name="Description" content="LAN Detector is a web application that aims to detect intranet environment (both LAN subnet, and IP devices in it).">
+<link rel="icon" href="favicon.ico">
+<style>
+
+* {
+	box-sizing: border-box;
+}
+html {
+	font-family: "Lucida Sans", sans-serif;
+	color: #424242;
+}
+label, input, button {
+	font-size: inherit;
+	padding: 0.15rem 0;
+	margin: 0;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+h2 {
+	margin-bottom: 0;
+	font-size: 6vw;
+}
+.hidden {
+	display: none;
+}
+.header {
+	display: flex;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 4rem;
+	overflow: hidden;
+	color: white;
+	background-color: #1e90ff;
+	padding: 0 0 0 0;
+	justify-content: center;
+	align-items: center;
+}
+.title {
+	float: left;
+	text-align: right;
+	padding: 0.42rem 0 0 0;
+}
+.title > span:nth-child(odd) {
+	font-size: 6vw;
+	font-weight: bold;
+	display: block;
+	transform: scaleY(2.4);
+}
+.title > span:nth-child(even) {
+	color: black;
+	font-size: 2.6vw;
+	display: block;
+	transform: translate(-0.4vw, 1.6vw);
+}
+.title-main {
+        font-size: 0.72rem;
+        text-align: center;
+        max-height: inherit;
+        overflow-y: auto;
+        width: 100%;
+}
+.footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 1rem;
+	text-align: center;
+	font-size: 0.72rem;
+}
+.body {
+	position: absolute;
+	display: flex;
+	flex-flow: column;
+	left: 0;
+	right: 0;
+	top: 4rem;
+	bottom: 1.4rem;
+	overflow: hidden;
+}
+.menu-icon {
+	float: right;
+	font-size: large;
+	display: inline-block;
+	cursor: pointer;
+}
+.menu-icon-1, .menu-icon-2, .menu-icon-3 {
+	width: 2rem;
+	height: 0.32rem;
+	background-color: currentColor;
+	margin: 0.36rem;
+	transition: 0.4s;
+}
+.to-close .menu-icon-1 {
+	-webkit-transform: translate(0, 0.66rem) rotate(-45deg);
+	transform: translate(0, 0.66rem) rotate(-45deg);
+}
+.to-close .menu-icon-2 {
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+.to-close .menu-icon-3 {
+	opacity: 0;
+}
+
+.menu {
+	display: none;
+	flex: 0 0 auto;
+	position: sticky;
+	float: left;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	font-size: 0.8rem;
+}
+.to-close {
+	display: block;
+}
+.menu ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+.menu li a {
+	background-color: #1c73c9;
+	padding: 0.5rem 1rem;
+	display: block;
+	color: white;
+	text-decoration: none;
+}
+.menu li a.active {
+	background-color: #004991;
+	color: white;
+}
+.menu li a:hover:not(.active) {
+	background-color: #61b0ff;
+	color: white;
+}
+.main {
+	display: flex;
+	float: left;
+	flex: 1 1 auto;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	font-size: 0.8rem;
+}
+.main > section {
+	width: 100%;
+}
+.land-view-ip {
+	flex: 1 1 auto;
+	float: left;
+	width: 100%;
+}
+.land-view-ip > table {
+	width: 100%;
+}
+.land-view-details {
+	flex: 1 1 auto;
+	float: right;
+	width: 100%;
+}
+.land-view-details > table {
+	width: 100%;
+}
+.progress {
+	width: 100%;
+	border-radius: 4px;
+	padding: 0.01rem 16px;
+	text-align: center;
+	color: #fff;
+	font-size: 20px;
+	background-image:
+		linear-gradient(#1c73c9, #1c73c9),
+		linear-gradient(#61b0ff, #61b0ff),
+		linear-gradient(#9ecfff, #9ecfff);
+	background-size:
+		0% 100%,
+		0% 100%,
+		100% 100%;
+	background-repeat: no-repeat;
+	transition: 1s;
+}
+tr:nth-child(even) {
+	background-color: #f0f0ff;
+}
+td {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+td:nth-child(even) {
+	color: #000000;
+}
+td.active {
+	background-color: #fff0f0;
+}
+td.maybe {
+	background-color: #fffff0;
+}
+td.inactive {
+	background-color: #e0e0e0;
+}
+td.tor {
+	background-color: #e0ffe0;
+}
+@media only screen and (min-width:50rem) {
+	.body {
+		flex-flow: wrap;
+		overflow: hidden;
+		bottom: 1.4rem;
+	}
+	.menu-icon {
+		display: none;
+	}
+	.menu {
+		display: block;
+		width: 35%;
+		height: 100%;
+	}
+	.main {
+		width: 65%;
+		height: 100%;
+		overflow: auto;
+		padding: 1rem;
+	}
+}
+
+@media only screen and (min-width:70rem) {
+	.land-view-ip {
+		width: 50%;
+	}
+	.land-view-details {
+		width: 50%;
+	}
+}
+
+@media only screen and (min-width:27rem) {
+	label, input, button {
+		padding: 0.2rem;
+		margin: 0.1rem 0.2rem;
+	}
+	h2 {
+		font-size: 1.5rem;
+	}
+	.title-main {
+		font-size: 3vw;
+	}
+	.title > span:nth-child(odd) {
+		transform: scaleY(1.6);
+	}
+	.title > span:nth-child(even) {
+		transform: translate(-0.4vw, -0.4vw);
+	}
+	.footer {
+		height: 1.2rem;
+		font-size: 1rem;
+	}
+	.menu {
+		font-size: 0.9rem;
+	}
+	.main {
+		font-size: 1rem;
+		padding: 0 1rem 0 1rem;
+	}
+	.land-view-ip {
+		padding: 1rem;
+	}
+	.land-view-details {
+		padding: 1rem;
+	}
+}
+
+@media only screen and (min-width:40rem) {
+	.title > span:nth-child(odd) {
+		font-size: 3rem;
+		transform: scaleY(1);
+	}
+	.title > span:nth-child(even) {
+		color: black;
+		font-size: 0.72rem;
+		transform: translate(-0.2rem, -0.5rem);
+	}
+	.menu {
+		font-size: 1rem;
+	}
+}
+@media only screen and (min-width:100rem) {
+	.title-main {
+		font-size: 3rem;
+	}
+}
+@media only screen and (max-width:20rem) {
+	label, input, button {
+		border-width: 1px;
+	}
+}
+
+</style>
+<script src="ju.js" type="text/javascript"></script>
+<script src="lan-detector.js" type="text/javascript"></script>
+<script src="lan-history.js" type="text/javascript"></script>
+
+<title>LAND.eTaras.com - LAN Detector</title>
+
+<script type="text/javascript">
+const tests = [
+	"http", "https", "ftp"
+	// "ssh", "telnet", "file", "smb", "nfs", "tftp", "sftp"
+];
+
+let landResult = null;
+
+let uiDelays = (() => {
+	const timers = {};
+	const DEFAULT_TIMEOUT = 1000;
+	return {
+		delay : (name, fn, timeout) => {
+			let timer = timers[name];
+			if(null != timer) {
+				clearTimeout(timer);
+			}
+			setTimeout(() => {
+				timers[name] = null;
+				fn();
+			}, timeout ? timeout : DEFAULT_TIMEOUT);
+		},
+	};
+})();
+
+let Progress = (element, count, leftCalc) => {
+	let e = ((typeof element === 'string' || element instanceof String)
+		? ge(element) : element);
+	if(!count || count < 0) throw "Illegal number to progress through";
+
+        const _t = () => new Date().getTime();
+
+	let updateThreadStarted = false;
+	let started = 0;
+	let startedOn = _t() - 1;
+	let finishedOn = null;
+	let done = 0;
+	let result = null;
+
+	const _defaultLeftCalc = (started, done, count, passed) => {
+		const perOne = done > 0 ? (passed / done) : 60000;
+		return Math.ceil((count - done) * perOne) + 1000;
+	};
+
+	const _leftCalc = leftCalc ? leftCalc : _defaultLeftCalc;
+		
+	const _toPercent = v => {
+		return (Math.round(v * 1000 / count) / 10) + "%";
+	};
+
+	const _elapsed = () => ((finishedOn ? finishedOn : _t()) - startedOn);
+
+	const _update = () => {
+		const pd = _toPercent(done);
+		e.innerText = pd + " (" + (result ? (result + " in " + timeToString(_elapsed()))
+			: (timeToString(_leftCalc(started, done, count, _elapsed())) + " left")) + ")";
+		e.style.backgroundSize = pd + " 100%, " + _toPercent(started) + " 100%, 100% 100%";
+	};
+
+	async function _updateThread() {
+		if(updateThreadStarted) return;
+		updateThreadStarted = true;
+		const cp = () => Math.floor(_elapsed() / 1000);
+		let passed = cp();
+		let prevStarted, prevDone, prevPassed, updateRequired;
+		do {
+			updateRequired = (prevStarted != started || prevDone != done || prevPassed != passed);
+			prevStarted = started;
+			prevDone = done;
+			prevPassed = passed;
+			passed = cp();
+			if(updateRequired) _update();
+			await sleep(100);
+		} while(!result || done < started || updateRequired);
+		updateThreadStarted = false;
+	}
+
+	return {
+		incrementStarted : () => {
+			++started;
+			if(started > count) started = count;
+			_updateThread();
+		},
+
+		incrementDone : () => {
+			++done;
+			if(done > count) done = count;
+			_updateThread();
+		},
+
+		start : () => {
+			startedOn = _t() - 1;
+			_updateThread();
+		},
+
+		finish : (res) => {
+			started = count;
+			done = count;
+			result = res;
+			finishedOn = _t();
+			_updateThread();
+		},
+
+		cancel : () => {
+			result = "skipped";
+			finishedOn = _t();
+			_updateThread();
+		},
+
+		elapsed : () => _elapsed(),
+
+	};
+};
+
+function session2label(session) {
+	let label = StringBuffer();
+	label.push(session.hosts.length);
+	label.push(" devices at ");
+	label.push(session.location ? session.location.label : "Unknown");
+	label.push(" [");
+	label.pushDateTime(toDate(session.timestamp));
+	label.push("]");
+	return label.toString();
+}
+
+function populateMenu() {
+	const menu = ge("menu");
+	lanHistory.forEach((session, id) => {
+		const li = ce(null, "li");
+		li.innerHTML = hT(session2label(session), "a",
+			hAtr("id", "land-history-" + id)
+			+ hAtr("href", "javascript:void(0);")
+			+ hAtr("onclick", "onMenu(this)"));
+		menu.appendChild(li);
+	});
+}
+
+function onMenuIcon(x) {
+	x.classList.toggle("to-close");
+	gc("menu")[0].classList.toggle("to-close");
+}
+
+function updateLocationUi(ip) {
+	lanHistory.forEach((session, id) => {
+		if(session.getIp() == ip) {
+			const itemId = (landResult && id == 0) ? "land-progress"
+				: ("land-history-" + (id - (landResult ? 1 : 0)));
+			const item = ge(itemId);
+			item.innerHTML = session2label(session);
+			if(item.className == "active") {
+				gc("title-main")[0].innerHTML = item.innerHTML;
+			}
+		}
+	});
+}
+
+function onLocationLabelChange(input, ip) {
+	const valid = input.reportValidity();
+	if(valid && lanHistory.setLocationLabel(ip, input.value)) {
+		uiDelays.delay(ip, () => updateLocationUi(ip));
+	}
+}
+
+const renderView = (() => {
+	const progressView = () => ge("land-progress-view");
+	const mainView = () => ge("land-main-view");
+	const view = () => ge("land-view");
+
+	const show = el => {
+		el.classList.remove("hidden");
+	};
+
+	const hide = el => {
+		el.classList.add("hidden");
+	};
+
+	const showMainView = main => {
+		if(main) {
+			hide(progressView());
+			show(mainView());
+		} else {
+			hide(mainView());
+			show(progressView());
+		}
+	};
+
+	const renderUnknown = () => {
+		view().innerHTML = "Not implemented yet";
+		whowMainView(true);
+	};
+
+	const renderHistory = i => {
+		let b = [];
+		const t = Table(["IP address", "Try to reach"], tests)();
+		const session = lanHistory.at(i);
+		session.hosts.forEach((v) => {
+			const ip = session.subnet + "." + v.ip;
+			tests.forEach(protocol => {
+				t.set(ip, protocol, hT(protocol, "a",
+					hAtr("href", protocol + "://" + ip)
+					+ hAtr("target", "_blank")));
+			});
+			t.setStyle(ip, v.quality == 1 ? "active" : "maybe");
+		});
+		b.push(hT(t.getHtml(), "div", hAtr("class", "land-view-ip")));
+		const details = Table("Details", ["value"])();
+		details.set("Detected on", "value", getDateTime(toDate(session.timestamp)));
+		details.set("Subnet", "value", session.subnet + ".0/24");
+		if(session.subnetTime) {
+			let msg;
+			switch(session.subnetSource) {
+			case 0:
+				msg = "found in";
+				break;
+			case 1:
+				msg = "skipped in";
+				break;
+			default:
+				msg = "not found in";	
+			}
+			msg += (" " + timeToString(session.subnetTime));
+			details.set("Subnet detection", "value", msg);
+			details.set("Subnet source", "value", session.subnetSource > 0 ? "set manually" : "detected");
+		}
+		if(session.hostsTime) {
+			details.set("Hosts detection", "value", timeToString(session.hostsTime));
+		}
+		let detailsHtml;
+		if(session.location) {
+			const location = Table("Location", ["value"])();
+			location.set("Label", "value", hT("", "input",
+				hAtr("type", "text")
+				+ hAtr("id", "locationLabel")
+				+ hAtr("minlength", "2")
+				+ hAtr("pattern", "[\\w\\u00C0-\\u1FFF\\u2C00-\\uD7FF][-\\w\\u00C0-\\u1FFF\\u2C00-\\uD7FF._ ]*[\\w\\u00C0-\\u1FFF\\u2C00-\\uD7FF]")
+				+ hAtr("size", "15")
+				+ hAtr("oninput", "onLocationLabelChange(this, '" + session.getIp() + "')")
+				+ hAtr("value", session.location.label)));
+			location.set("Public IP", "value", session.location.ip);
+			location.set("Organization", "value", session.location.org);
+			location.set("City", "value", session.location.city);
+			location.set("Region", "value", session.location.region);
+			location.set("Country", "value", session.location.country);
+			const poi = session.location.latitude + ',' +  session.location.longitude;
+			location.set("Show on map", "value", hT(poi, "a",
+				hAtr("href", "https://www.google.com/maps?q=" + poi)
+				+ hAtr("target", "_blank")
+				+ hAtr("rel", "noopener")));
+			detailsHtml = details.getHtml() + "\n<p/>" + location.getHtml(); 
+		} else {
+			detailsHtml = details.getHtml()
+		}
+		b.push(hT(detailsHtml, "div", hAtr("class", "land-view-details")));
+		view().innerHTML = b.join("\n");
+		showMainView(true);
+	};
+
+	const renderProgress = () => {
+		showMainView(false);
+		const v = view();
+		if(landResult === false) {
+			v.innerHTML = "Nothing found";
+			show(v);
+		}
+	};
+
+	return menu => {
+		const id = menu.id;
+		if(id) {
+			if(id.startsWith('land-history-')) {
+				const i = parseInt(id.substring(id.lastIndexOf('-') + 1));
+				renderHistory(i + (landResult ? 1 : 0));
+			} else if(id == 'land-progress') {
+				if(landResult) {
+					renderHistory(0);
+				} else {
+					renderProgress();
+				}
+			} else {
+				renderUnknown();
+			}
+		} else {
+			renderUnknown();
+		}
+	};
+})();
+
+function updateMenu(x) {
+	if(x.className == "active") {
+		gc("title-main")[0].innerHTML = x.innerHTML;
+	}
+	renderView(x);
+}
+
+function onMenu(x) {
+	if(x.className != "active") {
+		let items = gc("menu")[0].getElementsByTagName("a");
+		for(let i = 0; i < items.length; ++i) {
+			items[i].className = "";
+		}
+		x.className = "active";
+	}
+	const menuIcon = gc("menu-icon")[0];
+	if(window.getComputedStyle(menuIcon).display != "none") {
+		onMenuIcon(menuIcon);
+	}
+	updateMenu(x);
+}
+
+</script>
+</head>
+<body>
+
+<div class="header">
+	<div class="title"><span>LAND</span><span>LAN Detector</span></div>
+	<div class="title-main">Detecting...</div>
+	<div class="menu-icon" onclick="onMenuIcon(this)">
+		<div class="menu-icon-1"></div>
+		<div class="menu-icon-2"></div>
+		<div class="menu-icon-3"></div>
+	</div>
+</div>
+
+<div class="body">
+
+	<div class="menu"><nav><ul id="menu">
+		<li><a class="active" id="land-progress" href="javascript:void(0);" onclick="onMenu(this)">Detecting...</a></li>
+	</ul></nav></div>
+
+	<div class="main">
+		<section id="land-progress-view">
+			<h2>Detecting LAN subnet:</h2>
+			<section><div id="netsProgress" class="progress">0%</div></section>
+			<br/>
+			<div>
+			<input type="text" id="subnet" minlength="5" maxlength="11" size="11" placeholder="e.g.: 192.168.0"
+				pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){2}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" disabled></input>
+			<label for="subnet">.0/24</label>
+			<button id="skip" title="Skip detecting the local network and use the manually entered instead" disabled>Use subnet</button>
+			</div>
+			<h2>Detecting LAN devices:</h2>
+			<section><div id="portsProgress" class="progress">0%</div></section>
+			<br/>
+			<section><div id="land-progress-result"></div></section>
+		</section>
+		<section id="land-main-view" class="hidden">
+			<div id="land-view"></div>
+		</section>
+	</div>
+</div>
+
+<div class="footer">
+	Copyright &copy; 2021 LAND.eTaras.com.
+</div>
+
+<script type="text/javascript">
+
+window.onload = function() {
+	const netDetectionLeftCalc = (started, done, count, passed) => {
+		let md = socketFactory.getMaxDelay();
+		if(md < 20000) md = 133000;
+		const sockets = socketFactory.getMaxSockets();
+		const left = md * Math.ceil((count - started) / sockets);
+		const md2 = md + 2000;
+		return md2 - (passed % md2) + left;
+	};
+	
+	const initialProgress = Progress("netsProgress", 10000, (started, done, count, passed) => 720000 - passed);
+	initialProgress.start();
+
+	const detectionFailed = message => {
+		landResult = false;
+		if(message) ge("land-progress-view").innerHTML = hT("ERROR:<p/>" + message, "h1", hAtr("style", "color:red"));
+		ge("land-progress").innerHTML = "Detection failed";
+		gc("title-main")[0].innerHTML = "Detection failed";
+	};
+
+	scanLocalhost(3).then(localDelays => {
+	
+	let torBrowser = false;
+	if(!localDelays.find(d => d%100 > 1)) {
+		if(localDelays[localDelays.length - 1] - localDelays[0] > 90) torBrowser = true;
+	}
+
+	if(localDelays[0] > 8000 || torBrowser) {
+		const message = torBrowser ? "LAN detection is not allowed in this anonymous browser" : "LAN detection is not supported in this browser";
+		detectionFailed(message);
+		return;
+	}
+
+	let subnetTime = 0;
+	let subnetSource = 0;
+	let hostsTime = 0;
+	let skipNetworkScan = false;
+	let scanningIps = false;
+
+	let eSubnet = ge("subnet");
+	let eSkip = ge("skip");
+
+	eSubnet.addEventListener("keyup", event => {
+		eSkip.disabled = !eSubnet.validity.valid;
+		if(event.key !== "Enter") return;
+		if(!eSkip.disabled) eSkip.click();
+		event.preventDefault();
+	});
+	eSkip.addEventListener("click", event => {
+		skipNetworkScan = true;
+		scanIps();
+	});
+
+	async function findFirstNetworkUi(progressId, ports, candidates, candidateToIp) {
+		subnetTime = initialProgress.elapsed();
+		initialProgress.cancel();
+		const setProgress = ctx => {};
+		let progress = Progress(progressId, ports.length * candidates.length, netDetectionLeftCalc);
+		let result = await findFirstNetwork(ports, candidates, candidateToIp,
+			ctx => progress.incrementStarted(),
+			ctx => {
+				progress.incrementDone();
+				return skipNetworkScan;
+			});
+		if(skipNetworkScan) {
+			subnetTime += progress.elapsed();
+			progress.cancel();
+			subnetSource = 1;
+			return null;
+		}
+		const fastest = sortNetworkScanResult(result);
+		let subnet = result[fastest[0].ipIdx];
+		subnetTime += progress.elapsed();
+		eSubnet.value = subnet.ipPart;
+		eSkip.disabled = false;
+		if(fastest[0].delay >= 5000) {
+			progress.finish("not found");
+			subnetSource = 2;
+			return null;
+		} else {
+			progress.finish("found " + subnet.ipPart + ".0/24");
+			return subnet;
+		}
+	}
+
+	async function scanNetworkUi(progressId, ports, candidates, candidateToIp) {
+		const progress = Progress(progressId, ports.length * candidates.length, netDetectionLeftCalc);
+		const result =  await scanNetwork(ports, candidates, candidateToIp,
+			ctx => progress.incrementStarted(),
+			ctx => progress.incrementDone());
+		await analyzeNetworkScanResult(localDelays, result);
+		hostsTime = progress.elapsed();
+		return result;
+	}
+
+	async function scanIps() {
+		if(scanningIps) return;
+		scanningIps = true;
+		const subnet = eSubnet.value;
+		eSubnet.disabled = true;
+		eSkip.disabled = true;
+//		const ports = [80, 443, 445, 554, 631, 3306, 3690, 5432, 5433, 9050, 8080];
+		const ports = [443, 80];	
+		const candidates = [];
+		for(let ip = 1; ip < 255; ++ip) candidates.push(ip);
+		const hosts = await scanNetworkUi("portsProgress", ports, candidates, i => subnet + "." + i);
+		const session = {
+			timestamp : new Date(),
+			subnetTime : subnetTime,
+			subnetSource : subnetSource,
+			hostsTime : hostsTime,
+			label : subnet,
+			subnet : subnet,
+			location : null,
+			hosts : [],
+		};
+		hosts.forEach((v) => {
+			let p = v.results.reduce((acc, curr) => {
+				return (curr.poi > 0 ? (curr.poi < acc.poi ? curr : acc) : acc);
+			});
+			if(p.poi > 0) {
+				session.hosts.push({
+					ip : v.ipPart,
+					quality : p.poi,
+				});
+			}
+		});
+		const updateMenu0 = () => {
+			const menu0 = gc("menu")[0].getElementsByTagName("a")[0];
+			menu0.innerHTML = session2label(lanHistory.at(0));
+			if(menu0.className == "active") {
+				updateMenu(menu0);
+			}
+		};
+		if(session.hosts.length > 0) {
+			lanHistory.add(session, location => {
+				updateMenu0();
+			});
+			landResult = true;
+		} else {
+			lanHistory.addEmptySubnet(subnet);
+			landResult = false;
+		}
+		const detectionResult = (landResult ? ("Detected " + session.hosts.length + " devices.")
+			: ("Nothing found in " + subnet + ".0/24 LAN.<p/>Refresh the page to try to detect another one."));
+		ge("land-progress-result").innerHTML = detectionResult;
+		if(landResult) {
+			updateMenu0();
+		} else {
+			throw detectionResult;
+		}
+		await sleep(1000);
+	}
+
+
+	async function scan() {
+//		const initPorts = [80, 443];
+		const initPorts = [443];
+
+		// https://en.wikipedia.org/wiki/Private_network
+		const initCandidates = lanHistory.getSubnets();
+		const knownLength = initCandidates.length;
+		const known = {};
+		const failed = {};
+		initCandidates.forEach(s => known[s] = true);
+		lanHistory.getEmptySubnets().forEach(s => {
+			if(!known[s]) failed[s] = true;
+		});
+		const addCandidate = s => {
+			if(!known[s] && !failed[s]) initCandidates.push(s)
+		};
+		for(let ip = 0; ip < 256; ++ip) addCandidate("192.168." + ip);
+		let types = [];
+		for(let ip = 0; ip < 12; ++ip) types.push("10." + ip);
+		types.push("172.16");
+		types.push("172.17"); // default for docker: 172.17.255.255
+		types.forEach(v => {
+			for(let ip = 0; ip < 11; ++ip) addCandidate(v + "." + ip);
+		});
+		for(const f in failed) {
+			if(failed[f] === true) initCandidates.push(f);
+		}
+		console.info("There will be " + initCandidates.length + " networks scanned");
+
+		eSubnet.disabled = false;
+		if(knownLength > 0) {
+			eSubnet.value = initCandidates[0];
+			eSkip.disabled = false;
+		}
+		eSubnet.focus();
+
+		let subnet = await findFirstNetworkUi("netsProgress", initPorts, initCandidates, i => i + ".255");
+		if(!subnet) {
+			landResult = false;
+			if(!skipNetworkScan) {
+				ge("land-progress-result").innerHTML = "Network not found";
+			}
+		} else {
+			await scanIps();
+		}
+	}
+
+	scan().catch(error => {
+		detectionFailed("Failed to detect LAN.<p/>" + error);
+	});
+	}).catch(error => {
+		detectionFailed("Failed to check-in for LAN detection, try again later.<p/>" + error);
+	});
+	
+	populateMenu();
+};
+
+</script>
+</body>
+</html>
