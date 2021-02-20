@@ -758,7 +758,7 @@ window.onload = function() {
 
 	async function scanNetworkUi(progressId, ports, candidates, candidateToIp) {
 		const progress = Progress(progressId, ports.length * candidates.length, netDetectionLeftCalc);
-		const result =  await scanNetwork(ports, candidates, candidateToIp,
+		const result = await scanNetwork(ports, candidates, candidateToIp,
 			ctx => progress.incrementStarted(),
 			ctx => progress.incrementDone());
 		await analyzeNetworkScanResult(localDelays, result);
@@ -772,8 +772,7 @@ window.onload = function() {
 		const subnet = eSubnet.value;
 		eSubnet.disabled = true;
 		eSkip.disabled = true;
-//		const ports = [80, 443, 445, 554, 631, 3306, 3690, 5432, 5433, 9050, 8080];
-		const ports = [443, 80];	
+		const ports = [443, 80];
 		const candidates = [];
 		for(let ip = 1; ip < 255; ++ip) candidates.push(ip);
 		const hosts = await scanNetworkUi("portsProgress", ports, candidates, i => subnet + "." + i);
@@ -819,10 +818,10 @@ window.onload = function() {
 		ge("land-progress-result").innerHTML = detectionResult;
 		if(landResult) {
 			updateMenu0();
+			await sleep(1000);
 		} else {
 			throw detectionResult;
 		}
-		await sleep(1000);
 	}
 
 

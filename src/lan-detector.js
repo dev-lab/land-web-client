@@ -198,13 +198,13 @@ async function findFirstNetwork(ports, candidates, createIp, onStart, onFinish, 
 }
 
 function getDelay(obj) {
-	return !(obj.delay) ? 1000000 : obj.delay;
+	return !(obj.delays[0]) ? 1000000 : obj.delays[0];
 }
 
 function sortNetworkScanResult(result) {
 	return result.map((v, i) => {
 		return {
-			delay : (v.results.reduce((a, b) => getDelay(a) < getDelay(b) ? a : b)).delay,
+			delays : v.results.map(r => r.delay),
 			ipIdx : i
 		};
 	}).sort((a, b) => getDelay(a) - getDelay(b));
@@ -213,7 +213,10 @@ function sortNetworkScanResult(result) {
 async function analyzeNetworkScanResult(local, result) {
 	const pCount = result[0].results.length;
 	const d = sortNetworkScanResult(result);
-	const request = {local: local, probes: d.map(v => v.delay)};
+	const request = {local: local,
+		probes: d.map(v => v.delays[0]),
+		probes2: d.map(v => v.delays[1])
+	};
 	const response = await fetch("/api/land", {
 		method: "POST",
 		body: JSON.stringify(request),
