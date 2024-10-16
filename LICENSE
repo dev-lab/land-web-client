@@ -1,0 +1,45 @@
+LAN Detactor (LAND) License
+
+This software is the client-side code for accessing the LAN Detector
+service available at land.etaras.com.
+
+Terms and Restrictions:
+1. Usage of Client Software:
+ * End-User Restrictions: This software is strictly prohibited for direct
+   use by end users (individuals or entities).
+ * Licensee Usage: Licensed companies or entities (licensees) that have
+   signed an API License Agreement and are paying royalties may use this
+   software within their own products or services, which may then be used
+   by their end users. However, direct access or redistribution of this
+   client software to end users is not permitted.
+
+2. Demo Access Exception:
+ * Non-paying users may access the demo version of the service hosted at
+   [https://land.etaras.com/]. This demo access is currently free, but
+   access may be restricted or revoked in the future.
+
+3. Commercial and Non-Commercial Use:
+ * Licensees: Licensed entities using this software to integrate with or
+   develop products based on the API must adhere to the terms of their
+   API License Agreement, which may include royalties or other commercial
+   considerations.
+ * End Users: No end user may use this software outside of demo access,
+   even for non-commercial purposes.
+
+4. Modifications and Redistributions:
+ * Modifications or redistributions of this software are prohibited
+   unless specifically authorized by Taras Greben.
+
+5. Disclaimer: This software is provided "as-is", without warranty of
+   any kind, express or implied, including but not limited to the
+   warranties of merchantability, fitness for a particular purpose, or
+   non-infringement. In no event shall the author or copyright holders
+   be liable for any claim, damages, or other liability, whether in
+   an action of contract, tort, or otherwise, arising from, out of,
+   or in connection with the software or the use or other dealings
+   in the software.
+
+Contact:
+   For inquiries regarding API access, commercial use, or signing
+   an API License Agreement, please contact
+   Taras Greben <taras.greben@gmail.com>.

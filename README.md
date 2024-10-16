@@ -4,4 +4,5 @@
 # Demo
 [LAN Detector - land.etaras.com](https://land.etaras.com)
 
+# [License](./LICENSE)
 Copyright (c) 2021 Taras Greben 
